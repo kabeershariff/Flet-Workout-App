@@ -61,7 +61,7 @@ def get_today_workout():
     with connect_db() as conn:
         cursor = conn.cursor()
         today = datetime.today().strftime('%A')
-        query = "SELECT * FROM workouts WHERE day = ?"
+        query = "SELECT id, day, workout_name, sets, reps FROM workouts WHERE day = ?"
         cursor.execute(query, (today,))
         return cursor.fetchall()
 

@@ -10,6 +10,11 @@ def initialize():
 def refresh_page():
     if current_page:
         current_page.update()
+
+def screen_size():
+    if current_page:
+        return current_page.height
+
 def home_view():
     def fetch_workout_today():
         pass
@@ -27,13 +32,39 @@ def home_view():
     jobs = db_operations.get_today_workout()
     if jobs:
         placeholder = ft.Text("You have stuff to do!", theme_style=ft.TextThemeStyle.DISPLAY_SMALL)
-        layout = ft.Container(content=ft.Column(
-            controls=[placeholder],
-            spacing=15,
-            alignment=ft.MainAxisAlignment.CENTER,
-        ), padding= ft.padding.symmetric(horizontal=25, vertical=50),
+        
+        #Scrollable GridView
+        grid = ft.GridView(
+            runs_count=5,
+            spacing=10,
+            run_spacing=10,
+            max_extent=250,
+            child_aspect_ratio=1.0,
         )
 
+        for id, day, workout_name, sets, reps in jobs:
+            workout_text = f"{workout_name}\n{reps} Reps for {sets} Sets"
+
+            card = ft.Container(
+                content=ft.Column([
+                    ft.Text(workout_text, size=16, weight="bold"),
+                    ft.ElevatedButton("Mark as Done", on_click=lambda e: None)  # placeholder action
+                ]),
+                padding=10,
+                bgcolor="#f1f1f1",
+                border_radius=10,
+            )
+            grid.controls.append(card)
+
+        layout = ft.Container(content=ft.Column(
+            controls=[
+                placeholder,
+                ft.Container(content=grid, height=screen_size()*0.9)],
+            spacing=15,
+            alignment=ft.MainAxisAlignment.START,
+        ), padding= ft.padding.symmetric(horizontal=25, vertical=50),
+        )
+        
         return [layout]
     else:
         placeholder = ft.Text("REST you need REST :)", theme_style=ft.TextThemeStyle.DISPLAY_MEDIUM)
@@ -86,7 +117,7 @@ def settings_view():
     tasks_view = ft.Column(scroll="auto")
     scroll_view = ft.Container(
         content=tasks_view,
-        height=400,
+        height=screen_size() * 0.6,
     )
     select_day = ft.Dropdown(
         label="Select the Day",
